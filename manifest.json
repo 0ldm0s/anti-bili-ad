@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "B站推荐过滤",
-  "version": "0.1.0",
-  "description": "给B站不可屏蔽的推荐内容（直播、番剧等）添加过滤功能",
+  "version": "0.1.1",
+  "description": "给B站不可屏蔽的推荐内容（直播、番剧等）添加过滤功能，支持按类型屏蔽",
   "permissions": [
     "storage"
   ],

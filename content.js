@@ -66,6 +66,14 @@ function extractCardInfo(card) {
 async function isBlocked(card) {
   const info = extractCardInfo(card);
   const blacklist = await getBlacklist();
+
+  // 优先检查按类型屏蔽（如 "type:番剧" 会屏蔽所有番剧）
+  const typeId = `type:${info.type}`;
+  if (blacklist.some(item => item.id === typeId)) {
+    return true;
+  }
+
+  // 检查具体内容屏蔽（如 "番剧:物理魔法使马修"）
   return blacklist.some(item => item.id === info.id);
 }
 
