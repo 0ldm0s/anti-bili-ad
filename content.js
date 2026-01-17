@@ -55,11 +55,26 @@ function extractCardInfo(card) {
   const linkEl = card.querySelector('a[href]');
   const url = linkEl ? linkEl.getAttribute('href') : '';
 
-  // 生成唯一标识：使用副标题（番剧名/UP主）而不是具体视频标题
-  // 这样无论UP主发什么新视频，都能被过滤
-  const id = `${type}:${subTitle}`;
+  // 判断是否是UP主推广（通过链接判断）
+  // /space/ 开头的是UP主空间链接，live.bilibili.com 是直播
+  const isUserPromotion = url && (
+    url.includes('/space/') ||
+    url.includes('live.bilibili.com')
+  );
 
-  return { id, type, title, subTitle, url };
+  // 生成唯一标识：
+  // - UP主推广：直接用UP主名（跨类型屏蔽）
+  // - 内容推广：用 type:subTitle（如"番剧:物理魔法使马修"）
+  let id;
+  if (isUserPromotion && subTitle) {
+    // UP主推广，直接用UP主名，不区分类型
+    id = `user:${subTitle}`;
+  } else {
+    // 内容推广（番剧/电影等），用类型+名称
+    id = `${type}:${subTitle}`;
+  }
+
+  return { id, type, title, subTitle, url, isUserPromotion };
 }
 
 // 检查卡片是否在黑名单中

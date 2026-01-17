@@ -134,6 +134,11 @@ h2 {
   border: 1px solid #b3e5fc;
 }
 
+.blacklist-item.user-filter {
+  background: #fff8e8;
+  border: 1px solid #ffd59d;
+}
+
 .blacklist-item:hover {
   background: #fafafa;
 }
@@ -187,9 +192,19 @@ h2 {
   color: #58d598;
 }
 
+.item-icon.manga {
+  background: #ffe8f0;
+  color: #ff69b4;
+}
+
 .item-icon.course {
   background: #fffbe8;
   color: #fce683;
+}
+
+.item-icon.user {
+  background: #ffe8e8;
+  color: #ff9800;
 }
 
 .item-content {

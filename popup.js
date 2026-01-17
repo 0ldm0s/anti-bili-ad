@@ -24,6 +24,7 @@ function getTypeIcon(type) {
     '电视剧': '剧',
     '电影': '影',
     '国创': '国',
+    '漫画': '漫',
     '课堂': '课'
   };
   return icons[type] || '推';
@@ -39,6 +40,7 @@ function getTypeClass(type) {
     '电视剧': 'tv',
     '电影': 'movie',
     '国创': 'domestic',
+    '漫画': 'manga',
     '课堂': 'course'
   };
   return classes[type] || '';
@@ -49,25 +51,46 @@ function isTypeFilter(item) {
   return item.id && item.id.startsWith('type:');
 }
 
+// 检查是否是UP主屏蔽（如 "user:i_纪录"）
+function isUserFilter(item) {
+  return item.id && item.id.startsWith('user:');
+}
+
 // 修复旧的黑名单数据（添加缺失的 subTitle 字段）
 function fixOldBlacklist(blacklist) {
   return blacklist.map(item => {
-    // 如果是类型屏蔽，确保格式正确
+    // 如果是类型屏蔽（type:番剧），确保格式正确
     if (item.id && item.id.startsWith('type:')) {
       return {
         ...item,
         type: item.type || item.id.replace('type:', ''),
-        subTitle: null
+        subTitle: null,
+        isTypeFilter: true
       };
     }
-    // 如果是内容屏蔽但没有 subTitle，尝试从 id 中提取
-    if (!item.subTitle && item.id) {
+    // 如果是UP主屏蔽（user:XXX），确保格式正确
+    if (item.id && item.id.startsWith('user:')) {
+      return {
+        ...item,
+        type: 'UP主',
+        subTitle: item.id.replace('user:', ''),
+        isUserFilter: true
+      };
+    }
+    // 旧格式的数据（番剧:XXX），尝试从 id 中提取
+    if (!item.subTitle && item.id && item.id.includes(':')) {
       const parts = item.id.split(':');
       if (parts.length >= 2) {
+        const type = parts[0];
+        const sub = parts.slice(1).join(':');
+        // 判断是否是UP主（通过类型或经验判断）
+        const knownUserTypes = ['直播'];
+        const isUser = knownUserTypes.includes(type);
         return {
           ...item,
-          type: parts[0],
-          subTitle: parts.slice(1).join(':')
+          type: type,
+          subTitle: sub,
+          isUserFilter: isUser
         };
       }
     }
@@ -99,12 +122,26 @@ function renderBlacklist(blacklist) {
 
   listEl.innerHTML = fixedBlacklist.map((item, index) => {
     const isType = isTypeFilter(item);
-    const displayTitle = isType ? `所有${item.type}` : (item.subTitle || '未知');
-    const typeLabel = isType ? '按类型' : item.type;
+    const isUser = isUserFilter(item);
+
+    let displayTitle, typeLabel, iconClass;
+    if (isType) {
+      displayTitle = `所有${item.type}`;
+      typeLabel = '按类型';
+      iconClass = getTypeClass(item.type);
+    } else if (isUser) {
+      displayTitle = item.subTitle || '未知';
+      typeLabel = 'UP主';
+      iconClass = 'user';
+    } else {
+      displayTitle = item.subTitle || '未知';
+      typeLabel = item.type;
+      iconClass = getTypeClass(item.type);
+    }
 
     return `
-      <div class="blacklist-item ${isType ? 'type-filter' : ''}" data-index="${index}">
-        <div class="item-icon ${getTypeClass(item.type)}">${getTypeIcon(item.type)}</div>
+      <div class="blacklist-item ${isType ? 'type-filter' : ''} ${isUser ? 'user-filter' : ''}" data-index="${index}">
+        <div class="item-icon ${iconClass}">${isUser ? '主' : getTypeIcon(item.type)}</div>
         <div class="item-content">
           <div class="item-type">${typeLabel}</div>
           <div class="item-title" title="${displayTitle}">${displayTitle}</div>
