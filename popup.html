@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B站推荐过滤</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>B站推荐过滤</h1>
+    <p class="subtitle">给不可屏蔽的推荐内容添加过滤功能</p>
+
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-label">已过滤:</span>
+        <span class="stat-value" id="blocked-count">0</span>
+      </div>
+    </div>
+
+    <h2>黑名单列表</h2>
+    <div class="list-container">
+      <div id="blacklist-list" class="blacklist-list">
+        <p class="empty">暂无过滤内容</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="clear-all" class="btn btn-danger">清空黑名单</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
