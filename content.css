@@ -60,3 +60,46 @@
 .floor-single-card.filtered .cover {
   filter: blur(4px);
 }
+
+/* 屏蔽菜单样式 */
+.block-menu {
+  position: absolute;
+  top: 45px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 8px;
+  min-width: 160px;
+  z-index: 100;
+  display: none;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.block-menu.active {
+  display: block;
+}
+
+.block-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 13px;
+}
+
+.block-menu-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.block-icon {
+  font-size: 14px;
+  width: 20px;
+  text-align: center;
+}
+
+.block-text {
+  flex: 1;
+}

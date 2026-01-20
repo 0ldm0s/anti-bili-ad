@@ -64,6 +64,10 @@ function extractCardInfo(card) {
     subTitleUrl.includes('live.bilibili.com')
   );
 
+  // 获取游戏分类（仅直播有效，如"绝区零"、"CS:GO"）
+  const gameCategoryEl = card.querySelector('.bili-video-card__stats--right span');
+  const gameCategory = gameCategoryEl ? gameCategoryEl.textContent.trim() : '';
+
   // 生成唯一标识：
   // - UP主推广：直接用UP主名（跨类型屏蔽）
   // - 内容推广：用 type:subTitle（如"番剧:物理魔法使马修"）
@@ -76,7 +80,7 @@ function extractCardInfo(card) {
     id = `${type}:${subTitle}`;
   }
 
-  return { id, type, title, subTitle, url, isUserPromotion };
+  return { id, type, title, subTitle, url, isUserPromotion, gameCategory };
 }
 
 // 检查卡片是否在黑名单中
@@ -90,24 +94,109 @@ async function isBlocked(card) {
     return true;
   }
 
+  // 检查游戏分类屏蔽（如 "game:绝区零" 会屏蔽所有绝区零直播）
+  if (info.gameCategory) {
+    const gameId = `game:${info.gameCategory}`;
+    if (blacklist.some(item => item.id === gameId)) {
+      return true;
+    }
+  }
+
   // 检查具体内容屏蔽（如 "番剧:物理魔法使马修"）
   return blacklist.some(item => item.id === info.id);
 }
 
-// 添加卡片到黑名单
-async function addToBlacklist(card) {
-  const info = extractCardInfo(card);
+// 添加到黑名单（通用函数）
+async function addToBlacklistById(id, type, displayText) {
   const blacklist = await getBlacklist();
 
   // 检查是否已存在
-  if (!blacklist.some(item => item.id === info.id)) {
+  if (!blacklist.some(item => item.id === id)) {
     blacklist.push({
-      ...info,
+      id,
+      type,
+      title: displayText,
+      subTitle: displayText,
       timestamp: Date.now()
     });
     await saveBlacklist(blacklist);
-    console.log('[B站过滤] 已添加到黑名单:', info);
+    console.log('[B站过滤] 已添加到黑名单:', { id, type, displayText });
   }
+}
+
+// 创建屏蔽菜单
+function createBlockMenu(card) {
+  const info = extractCardInfo(card);
+  const menu = document.createElement('div');
+  menu.className = 'block-menu';
+
+  let menuHTML = '';
+
+  // 屏蔽UP主
+  const userName = info.isUserPromotion ? info.subTitle : info.subTitle;
+  if (userName) {
+    menuHTML += `
+      <div class="block-menu-item" data-action="user">
+        <span class="block-icon">👤</span>
+        <span class="block-text">屏蔽UP主: ${userName}</span>
+      </div>
+    `;
+  }
+
+  // 屏蔽游戏分类（仅直播且有游戏分类时显示）
+  if (info.gameCategory) {
+    menuHTML += `
+      <div class="block-menu-item" data-action="game">
+        <span class="block-icon">🎮</span>
+        <span class="block-text">屏蔽游戏: ${info.gameCategory}</span>
+      </div>
+    `;
+  }
+
+  // 屏蔽类型
+  menuHTML += `
+    <div class="block-menu-item" data-action="type">
+      <span class="block-icon">📺</span>
+      <span class="block-text">屏蔽所有${info.type}</span>
+    </div>
+  `;
+
+  menu.innerHTML = menuHTML;
+
+  // 绑定点击事件
+  menu.querySelectorAll('.block-menu-item').forEach(item => {
+    item.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const action = item.dataset.action;
+      let id, type, displayText;
+
+      switch (action) {
+        case 'user':
+          id = `user:${userName}`;
+          type = 'UP主';
+          displayText = userName;
+          break;
+        case 'game':
+          id = `game:${info.gameCategory}`;
+          type = '游戏';
+          displayText = info.gameCategory;
+          break;
+        case 'type':
+          id = `type:${info.type}`;
+          type = info.type;
+          displayText = `所有${info.type}`;
+          break;
+      }
+
+      await addToBlacklistById(id, type, displayText);
+      card.classList.add('hidden');
+      menu.remove();
+    });
+  });
+
+  return menu;
 }
 
 // 创建自定义不感兴趣按钮
@@ -128,8 +217,28 @@ function createNoInterestButton(card) {
   btn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    await addToBlacklist(card);
-    card.classList.add('hidden');
+
+    // 移除已存在的菜单
+    const existingMenu = document.querySelector('.block-menu.active');
+    if (existingMenu) {
+      existingMenu.remove();
+    }
+
+    // 创建并显示菜单
+    const menu = createBlockMenu(card);
+    menu.classList.add('active');
+    btn.parentElement.appendChild(menu);
+
+    // 点击外部关闭菜单
+    setTimeout(() => {
+      const closeMenu = (e) => {
+        if (!menu.contains(e.target) && e.target !== btn) {
+          menu.remove();
+          document.removeEventListener('click', closeMenu);
+        }
+      };
+      document.addEventListener('click', closeMenu);
+    }, 0);
   });
 
   // 添加到封面容器

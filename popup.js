@@ -58,6 +58,11 @@ function isUserFilter(item) {
   return item.id && item.id.startsWith('user:');
 }
 
+// 检查是否是游戏屏蔽（如 "game:绝区零"）
+function isGameFilter(item) {
+  return item.id && item.id.startsWith('game:');
+}
+
 // 修复旧的黑名单数据（添加缺失的 subTitle 字段）
 function fixOldBlacklist(blacklist) {
   return blacklist.map(item => {
@@ -77,6 +82,15 @@ function fixOldBlacklist(blacklist) {
         type: 'UP主',
         subTitle: item.id.replace('user:', ''),
         isUserFilter: true
+      };
+    }
+    // 如果是游戏屏蔽（game:XXX），确保格式正确
+    if (item.id && item.id.startsWith('game:')) {
+      return {
+        ...item,
+        type: '游戏',
+        subTitle: item.id.replace('game:', ''),
+        isGameFilter: true
       };
     }
     // 旧格式的数据（番剧:XXX），尝试从 id 中提取
@@ -104,6 +118,7 @@ function fixOldBlacklist(blacklist) {
 function renderBlacklist(blacklist) {
   const listEl = document.getElementById('blacklist-list');
   const countEl = document.getElementById('blocked-count');
+  const gameFiltersEl = document.getElementById('game-filters');
 
   // 修复旧数据
   const fixedBlacklist = fixOldBlacklist(blacklist);
@@ -117,14 +132,54 @@ function renderBlacklist(blacklist) {
 
   countEl.textContent = fixedBlacklist.length;
 
-  if (fixedBlacklist.length === 0) {
+  // 分离游戏关键词和其他项
+  const gameItems = fixedBlacklist.filter(item => isGameFilter(item));
+  const otherItems = fixedBlacklist.filter(item => !isGameFilter(item));
+
+  // 渲染游戏关键词区域
+  if (gameItems.length === 0) {
+    gameFiltersEl.innerHTML = '<p class="empty">暂无游戏关键词</p>';
+  } else {
+    gameFiltersEl.innerHTML = gameItems.map((item, index) => {
+      // 找到在原数组中的索引
+      const originalIndex = fixedBlacklist.indexOf(item);
+      return `
+        <div class="game-filter-tag" data-game-index="${originalIndex}">
+          <span>🎮 ${item.subTitle}</span>
+          <span class="remove-game" data-index="${originalIndex}" title="移除">×</span>
+        </div>
+      `;
+    }).join('');
+
+    // 绑定游戏标签删除事件
+    gameFiltersEl.querySelectorAll('.remove-game').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const index = parseInt(e.currentTarget.dataset.index);
+        removeItem(index);
+      });
+    });
+  }
+
+  // 渲染其他项（排除游戏）
+  if (otherItems.length === 0) {
     listEl.innerHTML = '<p class="empty">暂无过滤内容</p>';
     return;
   }
 
-  listEl.innerHTML = fixedBlacklist.map((item, index) => {
+  // 重新映射索引，因为游戏项被排除
+  let otherIndex = 0;
+  const indexMap = {};
+  fixedBlacklist.forEach((item, idx) => {
+    if (!isGameFilter(item)) {
+      indexMap[otherIndex] = idx;
+      otherIndex++;
+    }
+  });
+
+  listEl.innerHTML = otherItems.map((item, otherIdx) => {
     const isType = isTypeFilter(item);
     const isUser = isUserFilter(item);
+    const originalIndex = indexMap[otherIdx];
 
     let displayTitle, typeLabel, iconClass;
     if (isType) {
@@ -142,13 +197,13 @@ function renderBlacklist(blacklist) {
     }
 
     return `
-      <div class="blacklist-item ${isType ? 'type-filter' : ''} ${isUser ? 'user-filter' : ''}" data-index="${index}">
+      <div class="blacklist-item ${isType ? 'type-filter' : ''} ${isUser ? 'user-filter' : ''}" data-index="${originalIndex}">
         <div class="item-icon ${iconClass}">${isUser ? '主' : getTypeIcon(item.type)}</div>
         <div class="item-content">
           <div class="item-type">${typeLabel}</div>
           <div class="item-title" title="${displayTitle}">${displayTitle}</div>
         </div>
-        <button class="item-remove" data-index="${index}" title="移除">
+        <button class="item-remove" data-index="${originalIndex}" title="移除">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
           </svg>
