@@ -51,15 +51,17 @@ function extractCardInfo(card) {
   const subTitleEl = card.querySelector('.sub-title');
   const subTitle = subTitleEl ? subTitleEl.textContent.trim() : '';
 
-  // 获取链接
+  // 获取链接（主链接）
   const linkEl = card.querySelector('a[href]');
   const url = linkEl ? linkEl.getAttribute('href') : '';
 
-  // 判断是否是UP主推广（通过链接判断）
+  // 获取副标题链接来判断是否是UP主推广
   // /space/ 开头的是UP主空间链接，live.bilibili.com 是直播
-  const isUserPromotion = url && (
-    url.includes('/space/') ||
-    url.includes('live.bilibili.com')
+  const subTitleLinkEl = card.querySelector('.sub-title a[href]');
+  const subTitleUrl = subTitleLinkEl ? subTitleLinkEl.getAttribute('href') : '';
+  const isUserPromotion = subTitleUrl && (
+    subTitleUrl.includes('/space/') ||
+    subTitleUrl.includes('live.bilibili.com')
   );
 
   // 生成唯一标识：

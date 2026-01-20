@@ -202,6 +202,11 @@ h2 {
   color: #fce683;
 }
 
+.item-icon.esports {
+  background: #f0e8ff;
+  color: #9b59b6;
+}
+
 .item-icon.user {
   background: #ffe8e8;
   color: #ff9800;

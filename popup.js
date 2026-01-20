@@ -25,7 +25,8 @@ function getTypeIcon(type) {
     '电影': '影',
     '国创': '国',
     '漫画': '漫',
-    '课堂': '课'
+    '课堂': '课',
+    '赛事': '赛'
   };
   return icons[type] || '推';
 }
@@ -41,7 +42,8 @@ function getTypeClass(type) {
     '电影': 'movie',
     '国创': 'domestic',
     '漫画': 'manga',
-    '课堂': 'course'
+    '课堂': 'course',
+    '赛事': 'esports'
   };
   return classes[type] || '';
 }
