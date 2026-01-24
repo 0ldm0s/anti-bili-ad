@@ -307,8 +307,20 @@ function observeChanges() {
   });
 }
 
+// 检查是否在首页
+function isHomePage() {
+  // 首页的 pathname 是 '/'
+  return location.pathname === '/';
+}
+
 // 初始化
 function init() {
+  // 仅在首页运行
+  if (!isHomePage()) {
+    console.log('[B站过滤] 非首页，跳过初始化');
+    return;
+  }
+
   console.log('[B站过滤] 扩展已加载');
 
   // 初始处理
