@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "B站推荐过滤",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "给B站推荐内容添加过滤功能，拦截数据上报请求以降低CPU占用",
   "icons": {
     "16": "icons/icon_16x16.png",

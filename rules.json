@@ -3,6 +3,17 @@
     "id": 1,
     "priority": 1,
     "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "||s1.hdslb.com/bfs/cm/cm-sdk/static/js/bili-collect.js",
+      "resourceTypes": ["script"]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
       "type": "redirect",
       "redirect": {
         "url": "data:application/json,{\"code\":0}"
@@ -14,7 +25,7 @@
     }
   },
   {
-    "id": 2,
+    "id": 3,
     "priority": 1,
     "action": {
       "type": "redirect",
@@ -28,7 +39,7 @@
     }
   },
   {
-    "id": 3,
+    "id": 4,
     "priority": 1,
     "action": {
       "type": "redirect",
