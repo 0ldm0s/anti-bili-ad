@@ -10,7 +10,8 @@
   },
   "permissions": [
     "storage",
-    "declarativeNetRequest"
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess"
   ],
   "host_permissions": [
     "https://www.bilibili.com/*",
@@ -36,7 +37,8 @@
       "js": [
         "inject.js"
       ],
-      "run_at": "document_start"
+      "run_at": "document_start",
+      "all_frames": true
     },
     {
       "matches": [
