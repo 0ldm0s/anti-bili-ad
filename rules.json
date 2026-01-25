@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "||cm.bilibili.com/cm/api/receive*",
+      "resourceTypes": ["xmlhttprequest", "fetch"]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "||cm.bilibili.com/cm/dimension*",
+      "resourceTypes": ["xmlhttprequest", "fetch"]
+    }
+  },
+  {
+    "id": 3,
+    "priority": 1,
+    "action": {
+      "type": "block"
+    },
+    "condition": {
+      "urlFilter": "||data.bilibili.com/v2/log/web*",
+      "resourceTypes": ["xmlhttprequest", "fetch", "csp_report"]
+    }
+  }
+]

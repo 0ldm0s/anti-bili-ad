@@ -1,20 +1,43 @@
 {
   "manifest_version": 3,
   "name": "B站推荐过滤",
-  "version": "0.1.3",
-  "description": "给B站不可屏蔽的推荐内容（直播、番剧等）添加过滤功能，支持按类型屏蔽",
+  "version": "0.1.4",
+  "description": "给B站推荐内容添加过滤功能，拦截数据上报请求以降低CPU占用",
   "icons": {
     "16": "icons/icon_16x16.png",
     "48": "icons/icon_48x48.png",
     "128": "icons/icon_128x128.png"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "declarativeNetRequest"
   ],
   "host_permissions": [
-    "https://www.bilibili.com/*"
+    "https://www.bilibili.com/*",
+    "https://*.bilibili.com/*"
   ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "block_rules",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
+    {
+      "matches": [
+        "https://www.bilibili.com/*"
+      ],
+      "js": [
+        "inject.js"
+      ],
+      "run_at": "document_start"
+    },
     {
       "matches": [
         "https://www.bilibili.com/*"

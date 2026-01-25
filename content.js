@@ -315,9 +315,9 @@ function isHomePage() {
 
 // 初始化
 function init() {
-  // 仅在首页运行
+  // 仅在首页运行卡片过滤功能
   if (!isHomePage()) {
-    console.log('[B站过滤] 非首页，跳过初始化');
+    console.log('[B站过滤] 非首页，跳过卡片过滤');
     return;
   }
 
