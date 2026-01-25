@@ -35,16 +35,6 @@
         "https://www.bilibili.com/*"
       ],
       "js": [
-        "inject.js"
-      ],
-      "run_at": "document_start",
-      "all_frames": true
-    },
-    {
-      "matches": [
-        "https://www.bilibili.com/*"
-      ],
-      "js": [
         "content.js"
       ],
       "css": [
